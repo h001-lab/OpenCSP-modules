@@ -1,0 +1,32 @@
+---
+- name: 시스템 패키지 캐시 업데이트
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: 필수 시스템 패키지 설치
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - htop
+      - jq
+      - vim
+      - open-iscsi
+      - nfs-common
+      - python3-apt
+      - software-properties-common
+      - qemu-guest-agent
+    state: present
+
+- name: 시간대 설정 (Asia/Seoul)
+  timezone:
+    name: Asia/Seoul
+
+# cloud-init에서 해주지만 이후에도 형상은 유지되어야 함 (확실한 방법)
+- name: QEMU Guest Agent 서비스 활성화 및 시작
+  service:
+    name: qemu-guest-agent
+    state: started
+    enabled: yes

@@ -1,0 +1,32 @@
+# roles/netbird/tasks/main.yml
+---
+- name: NetBird 레포지토리 GPG 키 추가
+  shell: |
+    curl -fsSL https://pkgs.netbird.io/debian/public.key | gpg --dearmor -o /usr/share/keyrings/netbird-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/netbird-archive-keyring.gpg
+
+- name: NetBird 레포지토리 소스 리스트 추가
+  copy:
+    dest: /etc/apt/sources.list.d/netbird.list
+    content: 'deb [signed-by=/usr/share/keyrings/netbird-archive-keyring.gpg] https://pkgs.netbird.io/debian stable main'
+
+- name: NetBird 패키지 설치
+  apt:
+    name: netbird
+    state: present
+    update_cache: yes
+
+- name: NetBird 서비스 상태 확인
+  command: netbird status
+  register: netbird_status
+  ignore_errors: true
+  failed_when: false
+  changed_when: false
+
+- name: NetBird 연결 (Setup Key 사용)
+  command: "netbird up --setup-key {{ netbird_setup_key }}"
+  when: 
+    - "'Connected' not in netbird_status.stdout"
+    - netbird_setup_key | length > 0
+  register: netbird_connect
