@@ -1,6 +1,9 @@
 resource "local_file" "cloud_init_file" {
   content = templatefile("${path.module}/templates/user_data.yaml.tpl", {
-    hostname = var.vm_name
+    hostname          = var.vm_name
+    vm_password       = var.vm_password
+    vm_user           = var.vm_user
+    vm_ssh_public_key = var.vm_ssh_public_key
   })
   filename = "${path.module}/generated/user_data_${var.vm_name}.yaml"
 }
@@ -82,12 +85,9 @@ resource "proxmox_vm_qemu" "node" {
   }
 
   ipconfig0 = var.vm_ip != null ? "ip=${var.vm_ip},gw=${var.vm_gw}" : "ip=dhcp"
-  cicustom  = "vendor=${var.snippet_storage_pool}:snippets/user_data_${var.vm_name}.yaml"
-  ciuser  = var.vm_user
-  
-  sshkeys = <<EOF
-  ${trimspace(var.vm_ssh_public_key)}
-  EOF
+  cicustom  = "user=${var.snippet_storage_pool}:snippets/user_data_${var.vm_name}.yaml"
+  # ciuser    = var.vm_user
+  # cipassword = var.vm_password != null ? var.vm_password : null
 
   lifecycle {
     # MAC 주소 변경만 무시.

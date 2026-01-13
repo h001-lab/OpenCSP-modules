@@ -22,12 +22,12 @@ variable "target_node" {
 
 variable "template_name" {
   type    = string
-  default = "ubuntu-2404-cloud-template"
+  default = "ubuntu-2404-template"
 }
 
 variable "vm_name" {
   type    = string
-  default = "k3s-single-node"
+  default = "vm"
 }
 
 variable "vm_id" {
@@ -57,17 +57,17 @@ variable "vm_gw" {
 # --- Resources ---
 variable "cores" {
   type    = number
-  default = 4
+  default = 1
 }
 
 variable "memory" {
   type    = number
-  default = 16384
+  default = 1024
 }
 
 variable "disk_size" {
   type    = string
-  default = "50G"
+  default = "10G"
 }
 
 variable "storage_pool" {
@@ -84,6 +84,13 @@ variable "snippet_storage_pool" {
 variable "vm_user" {
   type    = string
   default = "ubuntu"
+}
+
+variable "vm_password" {
+  description = "VM 기본 사용자(ubuntu)의 초기 비밀번호"
+  type        = string
+  sensitive   = true
+  default     = null
 }
 
 variable "vm_ssh_public_key" {
