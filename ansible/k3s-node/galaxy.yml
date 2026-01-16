@@ -1,0 +1,6 @@
+namespace: opencsp
+name: k3s_node
+version: 1.0.0
+readme: README.md
+authors:
+  - h001
