@@ -24,7 +24,6 @@
   timezone:
     name: Asia/Seoul
 
-# cloud-init에서 해주지만 이후에도 형상은 유지되어야 함 (확실한 방법)
 - name: QEMU Guest Agent 서비스 활성화 및 시작
   service:
     name: qemu-guest-agent

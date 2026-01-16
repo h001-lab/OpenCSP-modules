@@ -1,0 +1,22 @@
+---
+- name: Flux CLI 설치
+  shell: curl -s https://fluxcd.io/install.sh | sudo bash
+  args:
+    creates: /usr/local/bin/flux
+
+- name: Flux Bootstrap 실행 (GitHub)
+  shell: |
+    flux bootstrap github \
+      --owner={{ github_user }} \
+      --repository={{ github_repo }} \
+      --branch=main \
+      --path={{ flux_path }} \
+      --token-auth
+  environment:
+    GITHUB_TOKEN: "{{ github_token }}"
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  register: flux_result
+  changed_when: "'configured' in flux_result.stderr"
+  failed_when: 
+    - flux_result.rc != 0
+    - "'already installed' not in flux_result.stderr"

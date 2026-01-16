@@ -1,20 +1,20 @@
----
-
 - name: 스왑(Swap) 비활성화
   shell: |
     swapoff -a
     sed -i '/swap/d' /etc/fstab
   args:
-    removes: /swap.img # fstab에 swap이 없을 때 에러 방지
+    removes: /swap.img
   ignore_errors: true
 
 - name: K3s 설치 스크립트 실행 (Flannel/Traefik 비활성화)
   shell: |
+    set -o pipefail
     curl -sfL https://get.k3s.io | \
     INSTALL_K3S_VERSION="{{ k3s_version }}" \
-    INSTALL_K3S_EXEC="server --disable flannel --disable traefik --disable servicelb --write-kubeconfig-mode 644 --node-name {{ ansible_hostname }}" \
+    INSTALL_K3S_EXEC="server --disable flannel --disable traefik --disable servicelb --write-kubeconfig-mode 644 --node-name {{ ansible_facts['hostname'] }}" \
     sh -
   args:
+    executable: /bin/bash
     creates: /usr/local/bin/k3s
 
 - name: K3s 서비스 활성화 및 시작
@@ -22,9 +22,3 @@
     name: k3s
     state: started
     enabled: yes
-
-# - name: 로컬 PC로 Kubeconfig 가져오기
-#   fetch:
-#     src: /etc/rancher/k3s/k3s.yaml
-#     dest: ./k3s-config.yaml
-#     flat: yes
