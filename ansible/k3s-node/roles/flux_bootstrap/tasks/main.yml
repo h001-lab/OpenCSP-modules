@@ -4,6 +4,14 @@
   args:
     creates: /usr/local/bin/flux
 
+- name: Flux 설치 여부 확인 (Check flux-system namespace)
+  shell: kubectl get namespace flux-system
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  register: flux_namespace_check
+  ignore_errors: true
+  changed_when: false
+
 - name: Flux Bootstrap 실행 (GitHub)
   shell: |
     flux bootstrap github \
@@ -15,8 +23,8 @@
   environment:
     GITHUB_TOKEN: "{{ github_token }}"
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  when: flux_namespace_check.rc != 0
   register: flux_result
   changed_when: "'configured' in flux_result.stderr"
   failed_when: 
     - flux_result.rc != 0
-    - "'already installed' not in flux_result.stderr"
