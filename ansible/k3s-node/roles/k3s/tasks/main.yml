@@ -17,8 +17,26 @@
     executable: /bin/bash
     creates: /usr/local/bin/k3s
 
-- name: K3s 서비스 활성화 및 시작
+- name: K3s 서비스 활성화, 시작
   service:
     name: k3s
     state: started
     enabled: yes
+
+- name: .kube 디렉토리 생성, 권한 설정
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: K3s kubeconfig 유저 홈으로 복사
+  copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: /home/ubuntu/.kube/config
+    remote_src: yes
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
+  become: true
