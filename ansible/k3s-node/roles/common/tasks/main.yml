@@ -29,3 +29,9 @@
     name: qemu-guest-agent
     state: started
     enabled: yes
+
+- name: 프로비저닝 완료 후 Cloud-Init 비활성화 (재부팅 충돌 방지)
+  file:
+    path: /etc/cloud/cloud-init.disabled
+    state: touch
+    mode: '0644'
