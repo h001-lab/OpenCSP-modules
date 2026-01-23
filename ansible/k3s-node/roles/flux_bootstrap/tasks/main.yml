@@ -9,7 +9,8 @@
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
   register: flux_namespace_check
-  ignore_errors: true
+  # ignore_errors: true
+  failed_when: flux_namespace_check.rc not in [0, 1] # 최초 실행 시는 namespace가 없지만 에러 아님 (무시), 이후는 있을 경우 
   changed_when: false
 
 - name: Flux Bootstrap 실행 (GitHub)
