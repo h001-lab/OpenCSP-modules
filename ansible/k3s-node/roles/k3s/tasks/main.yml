@@ -6,12 +6,19 @@
     removes: /swap.img
   ignore_errors: true
 
-- name: K3s 설치 스크립트 실행 (Flannel/Traefik 비활성화)
+- name: K3s 설치 스크립트 실행 (Flannel 비활성화 및 Cilium 준비)
   shell: |
     set -o pipefail
     curl -sfL https://get.k3s.io | \
     INSTALL_K3S_VERSION="{{ k3s_version }}" \
-    INSTALL_K3S_EXEC="server --disable flannel --disable traefik --disable servicelb --write-kubeconfig-mode 644 --node-name {{ ansible_facts['hostname'] }}" \
+    INSTALL_K3S_EXEC="server \
+      --flannel-backend=none \
+      --disable-network-policy \
+      --disable-kube-proxy \
+      --disable traefik \
+      --disable servicelb \
+      --write-kubeconfig-mode 644 \
+      --node-name {{ ansible_facts['hostname'] }}" \
     sh -
   args:
     executable: /bin/bash

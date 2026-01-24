@@ -41,5 +41,23 @@
       net.ipv4.conf.all.arp_announce=2
       net.ipv4.conf.eth0.arp_announce=2
 
+- name: 미사용 네트워크 인터페이스 정리
+  shell: |
+    for link in flannel.1 cni0 cilium_host cilium_net cilium_vxlan; do
+      ip link delete $link || true
+    done
+    
+    ip link show | grep veth | awk '{print $2}' | cut -d'@' -f1 | xargs -I {} ip link delete {} || true
+    
+    iptables -P INPUT ACCEPT
+    iptables -P FORWARD ACCEPT
+    iptables -P OUTPUT ACCEPT
+    iptables -t nat -F
+    iptables -t mangle -F
+    iptables -F
+    iptables -X
+
+  become: true
+
 - name: 커널 파라미터 즉시 적용
   command: sysctl --system
