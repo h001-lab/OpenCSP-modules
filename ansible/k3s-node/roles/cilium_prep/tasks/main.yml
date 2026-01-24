@@ -7,6 +7,16 @@
     - overlay
     - br_netfilter
 
+- name: 커널 헤더 및 빌드 필수 도구 설치
+  apt:
+    name:
+      - "linux-headers-{{ ansible_kernel }}"
+      - build-essential
+      - clang
+      - llvm
+    state: present
+    update_cache: yes
+
 - name: Cilium을 위한 커널 파라미터 파일 생성
   copy:
     dest: /etc/sysctl.d/99-k3s-cilium.conf
@@ -21,6 +31,15 @@
       # Reverse Path Filtering 해제 (Cilium 필수)
       net.ipv4.conf.all.rp_filter=0
       net.ipv4.conf.default.rp_filter=0
+
+      # --- L2 Announcement (ARP) 안정화 설정 ---
+      # 192.168.11.240 같은 가상 IP에 대해 ARP 응답을 허용
+      net.ipv4.conf.all.arp_ignore=1
+      net.ipv4.conf.eth0.arp_ignore=1
+      
+      # ARP 요청 시 가장 적합한 로컬 IP를 소스로 사용
+      net.ipv4.conf.all.arp_announce=2
+      net.ipv4.conf.eth0.arp_announce=2
 
 - name: 커널 파라미터 즉시 적용
   command: sysctl --system
