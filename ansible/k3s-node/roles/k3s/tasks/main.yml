@@ -17,6 +17,7 @@
       --disable-kube-proxy \
       --disable traefik \
       --disable servicelb \
+      --resolv-conf /run/systemd/resolve/resolv.conf \
       --write-kubeconfig-mode 644 \
       --node-name {{ ansible_facts['hostname'] }}" \
     sh -
