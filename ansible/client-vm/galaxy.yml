@@ -1,0 +1,6 @@
+namespace: opencsp
+name: client_vm
+version: 1.0.0
+readme: README.md
+authors:
+  - h001

@@ -1,0 +1,6 @@
+---
+teleport_version: "17"
+teleport_proxy_addr: "{{ TELEPORT_PROXY_ADDR }}"
+teleport_auth_token: "{{ TELEPORT_JOIN_TOKEN }}"
+teleport_node_name: "{{ node_name }}" # or inventory_hostname
+teleport_labels: {}

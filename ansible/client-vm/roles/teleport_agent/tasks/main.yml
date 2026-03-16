@@ -1,0 +1,33 @@
+---
+- name: Add Teleport APT repo key
+  ansible.builtin.get_url:
+    url: "https://apt.releases.teleport.dev/gpg"
+    dest: /usr/share/keyrings/teleport-archive-keyring.asc
+    mode: "0644"
+
+- name: Add Teleport APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/teleport-archive-keyring.asc] https://apt.releases.teleport.dev/ubuntu {{ ansible_distribution_release }} stable/v{{ teleport_version }}"
+    state: present
+    filename: teleport
+
+- name: Install Teleport
+  ansible.builtin.apt:
+    name: teleport
+    state: present
+    update_cache: true
+
+- name: Configure Teleport node
+  ansible.builtin.template:
+    src: teleport.yaml.j2
+    dest: /etc/teleport.yaml
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart teleport
+
+- name: Enable and start Teleport service
+  ansible.builtin.systemd:
+    name: teleport
+    enabled: true
+    state: started
