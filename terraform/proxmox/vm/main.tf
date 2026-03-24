@@ -9,33 +9,36 @@ resource "local_file" "cloud_init_file" {
 }
 
 resource "null_resource" "cloud_init_snippet" {
-  # 파일 내용이 변경되면 트리거 작동
   triggers = {
-    file_content = local_file.cloud_init_file.content
-    pve_host     = var.pve_host_address
-    pve_user     = var.pve_ssh_user
-    pve_key      = var.pve_ssh_private_key_path
-    snippet_path = "/var/lib/vz/snippets/user_data_${var.vm_name}.yaml"
+    file_content  = local_file.cloud_init_file.content
+    api_url       = var.proxmox_api_url
+    token_id      = var.proxmox_api_token_id
+    token_secret  = var.proxmox_api_token_secret
+    target_node   = var.target_node
+    storage       = var.snippet_storage_pool
+    snippet_name  = "user_data_${var.vm_name}.yaml"
   }
 
-  connection {
-    type        = "ssh"
-    user        = self.triggers.pve_user
-    private_key = file(self.triggers.pve_key)
-    host        = self.triggers.pve_host
+  # Upload snippet via API
+  provisioner "local-exec" {
+    command = <<-EOT
+      curl -s -k -X POST \
+        "${self.triggers.api_url}/nodes/${self.triggers.target_node}/storage/${self.triggers.storage}/upload" \
+        -H "Authorization: PVEAPIToken=${self.triggers.token_id}=${self.triggers.token_secret}" \
+        -F "content=snippets" \
+        -F "filename=${self.triggers.snippet_name}" \
+        -F "file=@${local_file.cloud_init_file.filename}"
+    EOT
   }
 
-  provisioner "file" {
-    source      = local_file.cloud_init_file.filename
-    destination = self.triggers.snippet_path
-  }
-
-  provisioner "remote-exec" {
-    when = destroy
-    inline = [
-      "rm -f ${self.triggers.snippet_path}",
-      "echo 'Deleted snippet: ${self.triggers.snippet_path}'"
-    ]
+  # Delete snippet on destroy
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      curl -s -k -X DELETE \
+        "${self.triggers.api_url}/nodes/${self.triggers.target_node}/storage/${self.triggers.storage}/content/${self.triggers.storage}:snippets/${self.triggers.snippet_name}" \
+        -H "Authorization: PVEAPIToken=${self.triggers.token_id}=${self.triggers.token_secret}"
+    EOT
   }
 }
 
