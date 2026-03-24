@@ -1,0 +1,12 @@
+changelog:
+  categories:
+    - title: "Breaking Changes"
+      labels: ["breaking-change"]
+    - title: "Terraform"
+      labels: ["terraform"]
+    - title: "Ansible"
+      labels: ["ansible"]
+    - title: "Bug Fixes"
+      labels: ["bug"]
+    - title: "Other"
+      labels: ["*"]
