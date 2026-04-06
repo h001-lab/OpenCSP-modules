@@ -94,8 +94,13 @@ variable "vm_password" {
 }
 
 variable "vm_ssh_public_key" {
-  description = "VM에 등록할 SSH Public Key. 입력하지 않으면 모듈이 자동 생성"
+  description = "Cloud-init 파일 전송을 위한 SSH Public Key. 입력하지 않으면 모듈이 자동 생성"
   type        = string
   default     = null
 }
 
+variable "opencsp_ansible_public_key" {
+  type        = string
+  default     = null
+  description = "Optional SSH public key for Ansible/OpenCSP access"
+}

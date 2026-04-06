@@ -10,7 +10,9 @@ users:
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     ssh_authorized_keys:
-      - ${vm_ssh_public_key}
+%{ for key in ssh_authorized_keys ~}
+      - ${key}
+%{ endfor ~}
 %{ if vm_password != null ~}
     lock_passwd: false
 %{ endif ~}

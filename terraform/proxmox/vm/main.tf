@@ -4,14 +4,18 @@ resource "tls_private_key" "vm_key" {
 
 locals {
   ssh_public_key = var.vm_ssh_public_key != null ? var.vm_ssh_public_key : tls_private_key.vm_key.public_key_openssh
+  ssh_authorized_keys = compact([
+    local.ssh_public_key,
+    var.opencsp_ansible_public_key
+  ])
 }
 
 resource "local_file" "cloud_init_file" {
   content = templatefile("${path.module}/templates/user_data.yaml.tpl", {
-    hostname          = var.vm_name
-    vm_password       = var.vm_password
-    vm_user           = var.vm_user
-    vm_ssh_public_key = local.ssh_public_key
+    hostname            = var.vm_name
+    vm_password         = var.vm_password
+    vm_user             = var.vm_user
+    ssh_authorized_keys = local.ssh_authorized_keys  # vm_ssh_public_key → ssh_authorized_keys 로 변경
   })
   filename = "${path.module}/generated/user_data_${var.vm_name}.yaml"
 }
