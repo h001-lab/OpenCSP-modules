@@ -94,5 +94,8 @@ variable "vm_password" {
 }
 
 variable "vm_ssh_public_key" {
-  type = string
+  description = "VM에 등록할 SSH Public Key. 입력하지 않으면 모듈이 자동 생성"
+  type        = string
+  default     = null
 }
+

@@ -1,9 +1,17 @@
+resource "tls_private_key" "vm_key" {
+  algorithm = "ED25519"
+}
+
+locals {
+  ssh_public_key = var.vm_ssh_public_key != null ? var.vm_ssh_public_key : tls_private_key.vm_key.public_key_openssh
+}
+
 resource "local_file" "cloud_init_file" {
   content = templatefile("${path.module}/templates/user_data.yaml.tpl", {
     hostname          = var.vm_name
     vm_password       = var.vm_password
     vm_user           = var.vm_user
-    vm_ssh_public_key = var.vm_ssh_public_key
+    vm_ssh_public_key = local.ssh_public_key
   })
   filename = "${path.module}/generated/user_data_${var.vm_name}.yaml"
 }
